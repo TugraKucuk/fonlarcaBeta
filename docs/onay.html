@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hesap Onayı — FONLARCA</title>
+<link rel="stylesheet" href="inc/fl.css">
+<style>
+body { font-family: -apple-system, Segoe UI, Roboto, Arial, sans-serif; background: #f4f6f9;
+       display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
+.kutu { background: #fff; border-radius: 14px; padding: 40px 34px; max-width: 380px; width: 90%;
+        text-align: center; box-shadow: 0 6px 30px rgba(0,0,0,.10); }
+.kutu h2 { color: #1F4E78; margin: 0 0 10px; font-size: 20px; }
+.kutu p { color: #5f6b7a; font-size: 14px; line-height: 1.6; margin: 0; }
+.ikon { font-size: 46px; margin-bottom: 14px; }
+</style>
+</head>
+<body>
+<div class="kutu" id="kutu">
+    <div class="ikon">&#8987;</div>
+    <h2>Hesabiniz dogrulaniyor</h2>
+    <p>Lutfen bekleyin...</p>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="inc/fl-config.js"></script>
+<script src="inc/fl-store.js"></script>
+<script>
+// Supabase adres cubugundaki token'i otomatik okur ve oturum acar
+(async function ()
+{
+    await FlStore.ready;
+
+    // Oturumun kurulmasi icin kisa bir tolerans
+    let user = FlStore.currentUser();
+    for (let i = 0; i < 10 && !user; i++)
+    {
+        await new Promise(r => setTimeout(r, 300));
+        user = FlStore.currentUser();
+    }
+
+    const kutu = document.getElementById('kutu');
+
+    if (user)
+    {
+        // Yereldeki favorileri hesaba tasi
+        await FlStore.migrateLocal();
+        kutu.innerHTML =
+            '<div class="ikon">&#9989;</div>' +
+            '<h2>Hesabiniz onaylandi</h2>' +
+            '<p>Hos geldiniz, <strong>' + user.email + '</strong>.<br>Giris yapildi, yonlendiriliyorsunuz...</p>';
+        setTimeout(() => { location.href = 'index.html'; }, 1800);
+    }
+    else
+    {
+        kutu.innerHTML =
+            '<div class="ikon">&#9888;</div>' +
+            '<h2>Link gecersiz</h2>' +
+            '<p>Bu onay linki gecersiz veya suresi dolmus.<br>' +
+            'Lutfen tekrar kayit olmayi deneyin.</p>' +
+            '<p style="margin-top:16px"><a href="index.html">Ana sayfaya don</a></p>';
+    }
+})();
+</script>
+</body>
+</html>

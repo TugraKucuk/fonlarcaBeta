@@ -1,6 +1,4 @@
-/* fl-store.js — Favori depolama adaptoru (Supabase + localStorage)
- * Giris yapilmamissa yerelde, yapilmissa hesapta tutar.
- */
+/* fl-store.js — Favori depolama adaptoru (Supabase + localStorage) */
 window.FlDB = window.supabase.createClient(FL_CONFIG.url, FL_CONFIG.key);
 
 window.FlStore = (function ()
@@ -26,14 +24,18 @@ window.FlStore = (function ()
         localStorage.setItem(KEY, JSON.stringify(list));
     }
 
-    // Oturumu bir kez cozup sakla — diger fonksiyonlar bunu bekler
     const ready = (async () =>
     {
         const { data } = await FlDB.auth.getSession();
         user = data.session ? data.session.user : null;
     })();
 
-    // Giris aninda yereldeki favorileri hesaba tasi
+    // Giris/cikis oldugunda kullaniciyi guncel tut
+    FlDB.auth.onAuthStateChange((event, session) =>
+    {
+        user = session ? session.user : null;
+    });
+
     async function migrateLocal()
     {
         const local = readLocal();
@@ -65,9 +67,7 @@ window.FlStore = (function ()
                 return new Set(readLocal().map(f => f.code));
             }
             const { data, error } = await FlDB
-                .from('favorites')
-                .select('fund_code')
-                .eq('fund_type', TYPE);
+                .from('favorites').select('fund_code').eq('fund_type', TYPE);
             if (error)
             {
                 console.error('Favori listesi alinamadi', error);
@@ -90,10 +90,7 @@ window.FlStore = (function ()
                 return true;
             }
             const { error } = await FlDB.from('favorites').upsert({
-                user_id:   user.id,
-                fund_code: code,
-                fund_name: name || '',
-                fund_type: TYPE
+                user_id: user.id, fund_code: code, fund_name: name || '', fund_type: TYPE
             }, { onConflict: 'user_id,fund_code,fund_type' });
             return !error;
         },
@@ -106,11 +103,8 @@ window.FlStore = (function ()
                 writeLocal(readLocal().filter(f => f.code !== code));
                 return true;
             }
-            const { error } = await FlDB
-                .from('favorites')
-                .delete()
-                .eq('fund_code', code)
-                .eq('fund_type', TYPE);
+            const { error } = await FlDB.from('favorites')
+                .delete().eq('fund_code', code).eq('fund_type', TYPE);
             return !error;
         },
 
@@ -121,11 +115,9 @@ window.FlStore = (function ()
             {
                 return readLocal();
             }
-            const { data, error } = await FlDB
-                .from('favorites')
+            const { data, error } = await FlDB.from('favorites')
                 .select('fund_code, fund_name, added_at')
-                .eq('fund_type', TYPE)
-                .order('added_at', { ascending: false });
+                .eq('fund_type', TYPE).order('added_at', { ascending: false });
             return error ? [] : data.map(r => ({
                 code: r.fund_code, name: r.fund_name, added_at: r.added_at
             }));

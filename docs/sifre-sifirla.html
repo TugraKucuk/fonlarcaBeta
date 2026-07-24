@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sifre Sifirla — FONLARCA</title>
+<link rel="stylesheet" href="inc/fl.css">
+<style>
+body { font-family: -apple-system, Segoe UI, Roboto, Arial, sans-serif; background: #f4f6f9;
+       display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
+.kutu { background: #fff; border-radius: 14px; padding: 36px 32px; max-width: 380px; width: 90%;
+        box-shadow: 0 6px 30px rgba(0,0,0,.10); }
+.kutu h2 { color: #1F4E78; margin: 0 0 6px; font-size: 20px; text-align: center; }
+.kutu .alt { color: #93a0b0; font-size: 13px; text-align: center; margin-bottom: 20px; }
+.kutu input { width: 100%; padding: 11px 13px; margin-bottom: 10px; border: 1px solid #d7e0ea;
+              border-radius: 8px; font-size: 14px; box-sizing: border-box; }
+.kutu input:focus { outline: none; border-color: #1F4E78; }
+.kutu button { width: 100%; padding: 12px; background: #1F4E78; color: #fff; border: none;
+               border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; }
+.kutu button:hover { background: #14345a; }
+.mesaj { font-size: 13px; min-height: 18px; margin-bottom: 10px; }
+.mesaj.err { color: #b3261e; }
+.mesaj.ok  { color: #1a7a37; }
+</style>
+</head>
+<body>
+<div class="kutu">
+    <h2>Yeni Sifre Belirle</h2>
+    <div class="alt">Hesabiniz icin guclu bir sifre secin.</div>
+    <div class="mesaj" id="mesaj"></div>
+    <input type="password" id="p1" placeholder="Yeni sifre (en az 6 karakter)" autocomplete="new-password">
+    <input type="password" id="p2" placeholder="Sifre tekrar" autocomplete="new-password">
+    <button id="btn">Sifremi Guncelle</button>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="inc/fl-config.js"></script>
+<script src="inc/fl-store.js"></script>
+<script>
+function goster(t, tip)
+{
+    const m = document.getElementById('mesaj');
+    m.textContent = t;
+    m.className = 'mesaj' + (tip ? ' ' + tip : '');
+}
+
+document.getElementById('btn').onclick = async function ()
+{
+    const p1 = document.getElementById('p1').value;
+    const p2 = document.getElementById('p2').value;
+
+    if (p1.length < 6)
+    {
+        goster('Sifre en az 6 karakter olmalidir.', 'err'); return;
+    }
+    if (p1 !== p2)
+    {
+        goster('Sifreler eslesmiyor.', 'err'); return;
+    }
+
+    this.disabled = true;
+    goster('Guncelleniyor...');
+
+    const { error } = await FlDB.auth.updateUser({ password: p1 });
+    this.disabled = false;
+
+    if (error)
+    {
+        goster('Hata: ' + error.message, 'err'); return;
+    }
+    goster('Sifreniz guncellendi, yonlendiriliyorsunuz...', 'ok');
+    setTimeout(() => { location.href = 'index.html'; }, 1600);
+};
+</script>
+</body>
+</html>

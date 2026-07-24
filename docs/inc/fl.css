@@ -1,75 +1,111 @@
-/* fl.css — Favori yildiz stilleri */
+/* fl.css — Favori yildizi, giris butonu ve modal */
 
+/* ── Yildiz ── */
 .fl-star
 {
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 14px;
-    line-height: 1;
-    padding: 0;
-    margin-right: 5px;
-    color: #c3ccd6;
-    vertical-align: baseline;
+    background: none; border: none; cursor: pointer;
+    font-size: 14px; line-height: 1; padding: 0; margin-right: 5px;
+    color: #c3ccd6; vertical-align: baseline;
     transition: color .15s, transform .1s;
 }
+.fl-star:hover { color: #f5a623; transform: scale(1.25); }
+.fl-star[aria-pressed="true"] { color: #f5a623; }
+.fl-star:disabled { opacity: .5; cursor: wait; }
 
-.fl-star:hover
+/* ── Sag ust giris butonu ── */
+#fl-authbtn
 {
-    color: #f5a623;
-    transform: scale(1.25);
+    position: fixed; top: 20px; right: 26px; z-index: 9000;
+    display: flex; align-items: center; gap: 7px;
+    background: #fff; color: #1F4E78;
+    border: none; border-radius: 22px;
+    padding: 9px 20px; font-size: 14px; font-weight: 600;
+    font-family: inherit; cursor: pointer;
+    box-shadow: 0 3px 14px rgba(0,0,0,.18);
+    transition: transform .12s, box-shadow .12s;
+}
+#fl-authbtn:hover { transform: translateY(-1px); box-shadow: 0 5px 18px rgba(0,0,0,.24); }
+#fl-authbtn .fl-dot
+{
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #23a55a; display: inline-block;
+}
+@media (max-width: 640px)
+{
+    #fl-authbtn { top: 10px; right: 10px; padding: 7px 14px; font-size: 13px; }
 }
 
-.fl-star[aria-pressed="true"]
-{
-    color: #f5a623;
-}
-
-.fl-star:disabled
-{
-    opacity: .5;
-    cursor: wait;
-}
-
-/* ── Giris/Kayit modali ── */
+/* ── Modal ── */
 #fl-modal { display: none; }
 #fl-modal.show { display: block; }
 #fl-modal .fl-backdrop
 {
-    position: fixed; inset: 0; background: rgba(15,25,40,.55); z-index: 9998;
+    position: fixed; inset: 0; z-index: 9998;
+    background: rgba(12,22,38,.55); backdrop-filter: blur(2px);
 }
 #fl-modal .fl-box
 {
     position: fixed; z-index: 9999;
     top: 50%; left: 50%; transform: translate(-50%, -50%);
-    background: #fff; border-radius: 12px; padding: 28px 26px;
-    width: 92%; max-width: 360px;
-    box-shadow: 0 8px 40px rgba(0,0,0,.25);
+    width: 92%; max-width: 380px;
+    background: #fff; border-radius: 16px; overflow: hidden;
+    box-shadow: 0 14px 50px rgba(0,0,0,.32);
     font-family: -apple-system, Segoe UI, Roboto, Arial, sans-serif;
 }
-#fl-modal h3 { margin: 0 0 16px; color: #1F4E78; font-size: 19px; }
+#fl-modal .fl-brand
+{
+    background: linear-gradient(135deg, #1F4E78 0%, #2c6ba0 100%);
+    color: #fff; padding: 20px 26px;
+    font-size: 17px; font-weight: 700; letter-spacing: 1.2px;
+}
+#fl-modal .fl-body { padding: 24px 26px 26px; }
+#fl-modal h3 { margin: 0 0 4px; color: #14345a; font-size: 19px; }
+#fl-modal .fl-sub { margin: 0 0 18px; color: #93a0b0; font-size: 13px; line-height: 1.5; }
+#fl-modal .fl-label
+{
+    display: block; font-size: 12px; font-weight: 600;
+    color: #5f6b7a; margin-bottom: 5px;
+}
 #fl-modal input
 {
-    width: 100%; padding: 10px 12px; margin-bottom: 10px;
-    border: 1px solid #d7e0ea; border-radius: 7px; font-size: 14px;
+    width: 100%; box-sizing: border-box;
+    padding: 11px 13px; margin-bottom: 13px;
+    border: 1px solid #d7e0ea; border-radius: 9px;
+    font-size: 14px; font-family: inherit;
+    transition: border-color .15s, box-shadow .15s;
 }
-#fl-modal input:focus { outline: none; border-color: #1F4E78; }
+#fl-modal input:focus
+{
+    outline: none; border-color: #1F4E78;
+    box-shadow: 0 0 0 3px rgba(31,78,120,.12);
+}
+#fl-modal .fl-forgot-row { text-align: right; margin: -6px 0 12px; }
+#fl-modal .fl-forgot-row a { font-size: 12.5px; color: #5f6b7a; text-decoration: none; }
+#fl-modal .fl-forgot-row a:hover { color: #1F4E78; text-decoration: underline; }
 #fl-modal .fl-submit
 {
-    width: 100%; padding: 11px; margin-top: 4px;
+    width: 100%; padding: 12px;
     background: #1F4E78; color: #fff; border: none;
-    border-radius: 7px; font-size: 15px; font-weight: 600; cursor: pointer;
+    border-radius: 9px; font-size: 15px; font-weight: 600;
+    font-family: inherit; cursor: pointer; transition: background .15s;
 }
 #fl-modal .fl-submit:hover { background: #14345a; }
 #fl-modal .fl-submit:disabled { opacity: .6; cursor: wait; }
 #fl-modal .fl-close
 {
-    position: absolute; top: 10px; right: 14px;
-    background: none; border: none; font-size: 24px;
-    color: #93a0b0; cursor: pointer; line-height: 1;
+    position: absolute; top: 14px; right: 16px;
+    background: none; border: none; font-size: 26px;
+    color: rgba(255,255,255,.75); cursor: pointer; line-height: 1;
 }
-#fl-modal .fl-switch { font-size: 13px; color: #5f6b7a; text-align: center; margin: 14px 0 0; }
-#fl-modal .fl-switch a { color: #1F4E78; font-weight: 600; }
-#fl-modal .fl-msg { font-size: 13px; margin-bottom: 10px; min-height: 18px; }
-#fl-modal .fl-msg.err { color: #b3261e; }
-#fl-modal .fl-msg.ok  { color: #1a7a37; }
+#fl-modal .fl-close:hover { color: #fff; }
+#fl-modal .fl-switch { font-size: 13px; color: #5f6b7a; text-align: center; margin: 16px 0 0; }
+#fl-modal .fl-switch a { color: #1F4E78; font-weight: 600; text-decoration: none; }
+#fl-modal .fl-switch a:hover { text-decoration: underline; }
+#fl-modal .fl-msg
+{
+    font-size: 13px; line-height: 1.5; margin-bottom: 12px;
+    min-height: 0; border-radius: 7px;
+}
+#fl-modal .fl-msg.info { color: #5f6b7a; }
+#fl-modal .fl-msg.err  { color: #b3261e; background: #fdecea; padding: 9px 11px; }
+#fl-modal .fl-msg.ok   { color: #1a7a37; background: #e9f7ee; padding: 9px 11px; }
