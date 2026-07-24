@@ -1,31 +1,25 @@
 /* fl.css — Favori yildiz stilleri */
 
-.fl-star-cell
-{
-    width: 26px;
-    padding: 0 2px !important;
-    text-align: center;
-}
-
 .fl-star
 {
     background: none;
     border: none;
     cursor: pointer;
-    font-size: 15px;
+    font-size: 14px;
     line-height: 1;
-    padding: 2px;
-    color: #bbb;
+    padding: 0;
+    margin-right: 5px;
+    color: #c3ccd6;
+    vertical-align: baseline;
     transition: color .15s, transform .1s;
 }
 
 .fl-star:hover
 {
     color: #f5a623;
-    transform: scale(1.2);
+    transform: scale(1.25);
 }
 
-/* Favoriye eklenmis durum */
 .fl-star[aria-pressed="true"]
 {
     color: #f5a623;

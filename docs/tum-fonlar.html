@@ -123,6 +123,7 @@ table.dataTable tbody td a:hover { color: #14345a; text-decoration-color: #14345
 .dataTables_wrapper .dataTables_paginate .paginate_button.disabled {
     color: #c2c9d1 !important; cursor: default; background: white !important;
 }
+table.dataTable td:nth-child(2) { max-width: 260px; overflow: hidden; text-overflow: ellipsis; }
 </style>
 <link rel="stylesheet" href="inc/fl.css">
 </head>
@@ -14554,7 +14555,7 @@ $(document).ready(function() {
         scrollX: true,
         scrollY: '65vh',
         scrollCollapse: true,
-        fixedColumns: { start: 1 },
+        fixedColumns: { start: 2 },
         autoWidth: false,
         language: { url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/tr.json' },
         columnDefs: [
