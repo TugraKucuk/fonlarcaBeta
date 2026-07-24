@@ -38,6 +38,11 @@ window.FlStore = (function ()
 
     async function migrateLocal()
     {
+        if (!user)
+        {
+            const { data } = await FlDB.auth.getSession();
+            user = data.session ? data.session.user : null;
+        }
         const local = readLocal();
         if (!user || local.length === 0)
         {

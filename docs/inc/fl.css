@@ -109,3 +109,15 @@
 #fl-modal .fl-msg.info { color: #5f6b7a; }
 #fl-modal .fl-msg.err  { color: #b3261e; background: #fdecea; padding: 9px 11px; }
 #fl-modal .fl-msg.ok   { color: #1a7a37; background: #e9f7ee; padding: 9px 11px; }
+
+/* Dogrulama kodu kutusu */
+#fl-modal .fl-code-input
+{
+    text-align: center;
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: 10px;
+    padding: 13px 10px;
+    color: #1F4E78;
+}
+#fl-modal .fl-grp { display: block; }
