@@ -34,6 +34,10 @@ window.FlStore = (function ()
     FlDB.auth.onAuthStateChange((event, session) =>
     {
         user = session ? session.user : null;
+        if (event === 'SIGNED_IN' && user)
+        {
+            migrateLocal().then(() => { if (window.FlFavorites) { FlFavorites.refresh(); } });
+        }
     });
 
     async function migrateLocal()

@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Favorilerim — FONLARCA</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1F4E78">
+<link rel="icon" href="icon-192.png">
+<link rel="stylesheet" href="inc/fl.css">
+<style>
+* { box-sizing: border-box; }
+body { font-family: -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+       margin: 0; padding: 32px 40px 60px; background: #f4f6f9; color: #1a1a1a; }
+.header { background: linear-gradient(135deg, #1F4E78 0%, #2c6ba0 100%); color: #fff;
+          padding: 28px 32px; border-radius: 12px; margin-bottom: 24px;
+          box-shadow: 0 2px 12px rgba(0,0,0,.08); }
+.header h1 { margin: 0; font-size: 26px; font-weight: 600; }
+.nav-bar { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+.nav-bar a { color: #fff; text-decoration: none; padding: 5px 14px;
+             border-radius: 20px; font-size: 13px; white-space: nowrap;
+             background: rgba(255,255,255,.12); }
+.card { background: #fff; border-radius: 12px; padding: 20px 24px 24px;
+        box-shadow: 0 2px 12px rgba(0,0,0,.06); }
+
+.arac { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 18px; }
+.arac input, .arac select
+{
+    padding: 9px 13px; border: 1px solid #d7e0ea; border-radius: 8px;
+    font-size: 14px; font-family: inherit;
+}
+.arac input { flex: 1; min-width: 200px; }
+.arac input:focus, .arac select:focus { outline: none; border-color: #1F4E78; }
+.sayac { color: #93a0b0; font-size: 13px; margin-left: auto; }
+
+.kat-blok { margin-bottom: 22px; }
+.kat-baslik
+{
+    display: flex; align-items: center; gap: 9px; cursor: pointer;
+    padding: 9px 12px; background: #f7f9fc; border-radius: 8px;
+    font-size: 14px; font-weight: 700; color: #1F4E78; user-select: none;
+}
+.kat-baslik .ok { transition: transform .2s; font-size: 11px; color: #93a0b0; }
+.kat-blok.kapali .ok { transform: rotate(-90deg); }
+.kat-blok.kapali table { display: none; }
+.kat-adet { background: #e3ebf4; color: #45688c;
+            border-radius: 11px; padding: 1px 9px; font-size: 12px; font-weight: 600; }
+
+table.fav { width: 100%; border-collapse: collapse; font-size: 13.5px; margin-top: 6px; }
+table.fav th { text-align: left; color: #93a0b0; font-weight: 500;
+               padding: 7px 10px; border-bottom: 1px solid #eef2f7; }
+table.fav td { padding: 9px 10px; border-bottom: 1px solid #f4f6f9; }
+table.fav tr:hover td { background: #fafcfe; }
+table.fav a { color: #1F4E78; font-weight: 600; text-decoration: none; }
+table.fav a:hover { text-decoration: underline; }
+.kod { font-weight: 700; }
+.sil { background: none; border: none; cursor: pointer; color: #f5a623;
+       font-size: 17px; padding: 2px 6px; }
+.sil:hover { color: #c07700; transform: scale(1.15); }
+
+.bos { text-align: center; padding: 60px 20px; color: #93a0b0; }
+.bos .ikon { font-size: 44px; margin-bottom: 12px; }
+.bos h2 { color: #5f6b7a; font-size: 18px; margin: 0 0 8px; }
+.bos button { margin-top: 16px; padding: 11px 26px; background: #1F4E78; color: #fff;
+              border: none; border-radius: 9px; font-size: 15px; font-weight: 600;
+              font-family: inherit; cursor: pointer; }
+.bos button:hover { background: #14345a; }
+
+.geri-al { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+           background: #14345a; color: #fff; padding: 12px 20px; border-radius: 10px;
+           font-size: 14px; display: none; align-items: center; gap: 14px;
+           box-shadow: 0 6px 24px rgba(0,0,0,.28); z-index: 8000; }
+.geri-al.show { display: flex; }
+.geri-al button { background: none; border: none; color: #7fc4ff;
+                  font-weight: 700; cursor: pointer; font-size: 14px; font-family: inherit; }
+
+@media (max-width: 640px)
+{
+    body { padding: 14px 12px 40px; }
+    .header { padding: 14px 16px; }
+    .header h1 { font-size: 18px; }
+    .card { padding: 14px 12px 18px; }
+    .sayac { margin-left: 0; }
+    table.fav .gizle-mobil { display: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+    <h1>&#11088; Favorilerim</h1>
+    <div class="nav-bar">
+        <a href="index.html">Hareketler</a>
+        <a href="kategori-ozeti.html">Puanlama - Kategori Ozeti</a>
+        <a href="tum-fonlar.html">Puanlama - Tum Fonlar</a>
+        <a href="yeni-fonlar.html">En Son Eklenen Fonlar</a>
+    </div>
+</div>
+
+<div class="card" id="icerik">
+    <div class="bos"><div class="ikon">&#8987;</div><p>Yukleniyor...</p></div>
+</div>
+
+<div class="geri-al" id="geri-al">
+    <span id="geri-metin"></span>
+    <button id="geri-btn">GERI AL</button>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="inc/fl-config.js"></script>
+<script src="inc/fl-store.js"></script>
+<script src="inc/fl-auth.js"></script>
+<script src="inc/fl-ui.js"></script>
+<script>
+let favoriler = [];      // { code, name, kat }
+let katalog   = {};      // kod -> { ad, kat }
+let sonSilinen = null;
+let zamanlayici = null;
+
+// tum-fonlar.html'den kod -> kategori esligini cikar
+async function katalogYukle()
+{
+    try
+    {
+        const html = await (await fetch('tum-fonlar.html')).text();
+        const doc  = new DOMParser().parseFromString(html, 'text/html');
+        doc.querySelectorAll('#tefasTable tbody tr').forEach(tr =>
+        {
+            const h = tr.querySelectorAll('td');
+            if (h.length < 3)
+            {
+                return;
+            }
+            const kod = (h[0].textContent || '').trim().toUpperCase();
+            if (kod)
+            {
+                katalog[kod] = { ad: h[1].textContent.trim(), kat: h[2].textContent.trim() };
+            }
+        });
+    }
+    catch (e)
+    {
+        console.warn('Kategori bilgisi alinamadi', e);
+    }
+}
+
+function html(s)
+{
+    return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+}
+
+// Ekrani ciz
+function ciz()
+{
+    const kutu  = document.getElementById('icerik');
+    const arama = (document.getElementById('q') ? document.getElementById('q').value : '').toLowerCase();
+    const secKat = document.getElementById('kat') ? document.getElementById('kat').value : '';
+
+    if (favoriler.length === 0)
+    {
+        kutu.innerHTML =
+            '<div class="bos"><div class="ikon">&#9734;</div>' +
+            '<h2>Henuz favoriniz yok</h2>' +
+            '<p>Fon tablolarindaki yildiza tiklayarak favori ekleyebilirsiniz.</p>' +
+            '<button onclick="location.href=\'tum-fonlar.html\'">Fonlara Goz At</button></div>';
+        return;
+    }
+
+    // Filtrele
+    const liste = favoriler.filter(f =>
+        (!secKat || f.kat === secKat) &&
+        (!arama || f.code.toLowerCase().includes(arama) || f.name.toLowerCase().includes(arama)));
+
+    // Kategoriye gore grupla
+    const gruplar = {};
+    liste.forEach(f => { (gruplar[f.kat] = gruplar[f.kat] || []).push(f); });
+    const katlar = Object.keys(gruplar).sort((a, b) => a.localeCompare(b, 'tr'));
+
+    // Filtre cubugu (bir kez olustur, sonra koru)
+    const tumKat = [...new Set(favoriler.map(f => f.kat))].sort((a, b) => a.localeCompare(b, 'tr'));
+    let h =
+        '<div class="arac">' +
+          '<input type="search" id="q" placeholder="Fon kodu veya adi ara..." value="' + html(arama) + '">' +
+          '<select id="kat"><option value="">Tum kategoriler</option>' +
+            tumKat.map(k => '<option value="' + html(k) + '"' + (k === secKat ? ' selected' : '') + '>' + html(k) + '</option>').join('') +
+          '</select>' +
+          '<span class="sayac">' + liste.length + ' / ' + favoriler.length + ' fon</span>' +
+        '</div>';
+
+    if (liste.length === 0)
+    {
+        h += '<div class="bos"><div class="ikon">&#128269;</div><p>Aramaniza uyan favori bulunamadi.</p></div>';
+    }
+
+    katlar.forEach(k =>
+    {
+        h += '<div class="kat-blok" data-kat="' + html(k) + '">' +
+               '<div class="kat-baslik"><span class="ok">&#9660;</span>' + html(k) +
+                 '<span class="kat-adet">' + gruplar[k].length + '</span></div>' +
+               '<table class="fav"><thead><tr>' +
+                 '<th style="width:70px">Kod</th><th>Fon Adi</th><th style="width:44px"></th>' +
+               '</tr></thead><tbody>';
+
+        gruplar[k].forEach(f =>
+        {
+            h += '<tr>' +
+                   '<td class="kod"><a href="https://fonlarca.com/fon/' + f.code.toLowerCase() + '.html" target="_blank">' + html(f.code) + '</a></td>' +
+                   '<td>' + html(f.name) + '</td>' +
+                   '<td><button class="sil" data-code="' + html(f.code) + '" title="Favorilerden kaldir">&#9733;</button></td>' +
+                 '</tr>';
+        });
+
+        h += '</tbody></table></div>';
+    });
+
+    kutu.innerHTML = h;
+
+    // Olaylar
+    const q = document.getElementById('q');
+    if (q)
+    {
+        q.oninput = () => { ciz(); document.getElementById('q').focus(); };
+        document.getElementById('kat').onchange = ciz;
+    }
+
+    document.querySelectorAll('.kat-baslik').forEach(b =>
+    {
+        b.onclick = () => b.parentElement.classList.toggle('kapali');
+    });
+
+    document.querySelectorAll('.sil').forEach(b =>
+    {
+        b.onclick = () => sil(b.dataset.code);
+    });
+}
+
+async function sil(kod)
+{
+    const f = favoriler.find(x => x.code === kod);
+    if (!f)
+    {
+        return;
+    }
+    favoriler = favoriler.filter(x => x.code !== kod);
+    sonSilinen = f;
+    ciz();
+
+    await FlStore.remove(kod);
+
+    const kutu = document.getElementById('geri-al');
+    document.getElementById('geri-metin').textContent = kod + ' favorilerden cikarildi';
+    kutu.classList.add('show');
+    clearTimeout(zamanlayici);
+    zamanlayici = setTimeout(() => kutu.classList.remove('show'), 5000);
+}
+
+document.getElementById('geri-btn').onclick = async () =>
+{
+    if (!sonSilinen)
+    {
+        return;
+    }
+    await FlStore.add(sonSilinen.code, sonSilinen.name);
+    favoriler.push(sonSilinen);
+    sonSilinen = null;
+    document.getElementById('geri-al').classList.remove('show');
+    ciz();
+};
+
+(async function ()
+{
+    await katalogYukle();
+    await FlStore.ready;
+
+    const ham = await FlStore.all();
+    favoriler = ham.map(f =>
+    {
+        const bilgi = katalog[f.code] || {};
+        return {
+            code: f.code,
+            name: f.name || bilgi.ad || f.code,
+            kat:  bilgi.kat || 'Diger'
+        };
+    }).sort((a, b) => a.code.localeCompare(b.code, 'tr'));
+
+    ciz();
+})();
+</script>
+</body>
+</html>

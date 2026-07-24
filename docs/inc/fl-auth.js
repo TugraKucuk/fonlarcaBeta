@@ -1,15 +1,92 @@
-/* fl-auth.js — Kod (OTP) tabanli giris/kayit/sifre sifirlama
- * Yonlendirme yok: kod maile gelir, sitede girilir, oturum aninda acilir.
- */
+/* fl-auth.js — Giris / Kayit / Kod dogrulama / Sifre sifirlama + Google */
 (function ()
 {
-    // login | signup | otp | forgot | reset
-    let mode = 'login';
+    let mode = 'login';        // login | signup | otp | forgot | reset
     let pendingEmail = '';
+    const KOD_UZUNLUK = 6;
+
+    // Sitenin kok adresi (alt dizinde de dogru calisir)
+    const BASE = location.origin + location.pathname.replace(/[^/]*$/, '');
 
     function el(id)
     {
         return document.getElementById(id);
+    }
+
+    // ── Kod kutucuklari ──
+    function kodKutulari()
+    {
+        let h = '<div class="fl-otp" id="fl-otp">';
+        for (let i = 0; i < KOD_UZUNLUK; i++)
+        {
+            h += '<input type="text" class="fl-otp-box" inputmode="numeric" maxlength="1" ' +
+                 'data-i="' + i + '" autocomplete="' + (i === 0 ? 'one-time-code' : 'off') + '">';
+        }
+        return h + '</div>';
+    }
+
+    function kodOku()
+    {
+        return Array.from(document.querySelectorAll('.fl-otp-box'))
+                    .map(i => i.value.trim()).join('');
+    }
+
+    function kodTemizle()
+    {
+        document.querySelectorAll('.fl-otp-box').forEach(i => { i.value = ''; });
+    }
+
+    function kodOdakla()
+    {
+        const ilk = document.querySelector('.fl-otp-box');
+        if (ilk)
+        {
+            ilk.focus();
+        }
+    }
+
+    function kodDavranis()
+    {
+        const boxes = Array.from(document.querySelectorAll('.fl-otp-box'));
+
+        boxes.forEach((box, i) =>
+        {
+            box.addEventListener('input', () =>
+            {
+                box.value = box.value.replace(/\D/g, '');   // sadece rakam
+                if (box.value && i < boxes.length - 1)
+                {
+                    boxes[i + 1].focus();
+                }
+                // Hepsi doldu ise otomatik gonder
+                if (kodOku().length === KOD_UZUNLUK)
+                {
+                    submit();
+                }
+            });
+
+            box.addEventListener('keydown', (e) =>
+            {
+                if (e.key === 'Backspace' && !box.value && i > 0)
+                {
+                    boxes[i - 1].focus();
+                }
+                if (e.key === 'ArrowLeft'  && i > 0)                { boxes[i - 1].focus(); }
+                if (e.key === 'ArrowRight' && i < boxes.length - 1) { boxes[i + 1].focus(); }
+            });
+
+            // Kodu tek seferde yapistirma
+            box.addEventListener('paste', (e) =>
+            {
+                e.preventDefault();
+                const veri = (e.clipboardData.getData('text') || '').replace(/\D/g, '');
+                boxes.forEach((b, j) => { b.value = veri[j] || ''; });
+                if (veri.length >= KOD_UZUNLUK)
+                {
+                    submit();
+                }
+            });
+        });
     }
 
     function buildModal()
@@ -26,6 +103,19 @@
             '<p class="fl-sub" id="fl-sub"></p>' +
             '<div class="fl-msg" id="fl-msg"></div>' +
 
+            '<div class="fl-grp" id="g-google">' +
+              '<button class="fl-google" id="fl-google">' +
+                '<svg width="17" height="17" viewBox="0 0 48 48">' +
+                  '<path fill="#4285F4" d="M45 24c0-1.6-.1-2.7-.4-4H24v8h12c-.2 2-1.6 5-4.5 7l7 5.4C42.7 36.6 45 31 45 24z"/>' +
+                  '<path fill="#34A853" d="M24 46c6 0 11-2 14.6-5.4l-7-5.4C29.7 36.5 27.1 37.4 24 37.4c-5.8 0-10.7-3.9-12.5-9.1l-7.2 5.6C7.9 41.3 15.4 46 24 46z"/>' +
+                  '<path fill="#FBBC05" d="M11.5 28.3c-.5-1.4-.7-2.8-.7-4.3s.3-2.9.7-4.3l-7.2-5.6C2.8 17 2 20.4 2 24s.8 7 2.3 9.9l7.2-5.6z"/>' +
+                  '<path fill="#EA4335" d="M24 10.6c3.3 0 6.2 1.1 8.5 3.3l6.3-6.3C35 4.1 30 2 24 2 15.4 2 7.9 6.7 4.3 14.1l7.2 5.6C13.3 14.5 18.2 10.6 24 10.6z"/>' +
+                '</svg>' +
+                '<span>Google ile devam et</span>' +
+              '</button>' +
+              '<div class="fl-ayirac"><span>veya</span></div>' +
+            '</div>' +
+
             '<div class="fl-grp" id="g-email">' +
               '<label class="fl-label" for="fl-email">E-posta</label>' +
               '<input type="email" id="fl-email" placeholder="ornek@eposta.com" autocomplete="email">' +
@@ -37,9 +127,8 @@
             '</div>' +
 
             '<div class="fl-grp" id="g-code">' +
-              '<label class="fl-label" for="fl-code">Dogrulama kodu</label>' +
-              '<input type="text" id="fl-code" class="fl-code-input" placeholder="Kod" ' +
-                     'inputmode="numeric" maxlength="10" autocomplete="one-time-code">' +
+              '<label class="fl-label">Dogrulama kodu</label>' +
+              kodKutulari() +
             '</div>' +
 
             '<div class="fl-grp" id="g-newpass">' +
@@ -56,7 +145,7 @@
             '<p class="fl-switch" id="g-switch">' +
               '<span id="fl-switch-text"></span> <a href="#" id="fl-switch"></a>' +
             '</p>' +
-            '<p class="fl-switch" id="g-resend" style="display:none">' +
+            '<p class="fl-switch" id="g-resend">' +
               '<a href="#" id="fl-resend">Kodu tekrar gonder</a>' +
             '</p>' +
           '</div>' +
@@ -68,26 +157,28 @@
         el('fl-switch').onclick = (e) => { e.preventDefault(); setMode(mode === 'signup' ? 'login' : 'signup'); };
         el('fl-forgot').onclick = (e) => { e.preventDefault(); setMode('forgot'); };
         el('fl-resend').onclick = (e) => { e.preventDefault(); resend(); };
+        el('fl-google').onclick = googleGiris;
         el('fl-submit').onclick = submit;
 
         d.addEventListener('keydown', (e) =>
         {
-            if (e.key === 'Enter')  { submit(); }
+            if (e.key === 'Enter' && !e.target.classList.contains('fl-otp-box')) { submit(); }
             if (e.key === 'Escape') { close(); }
         });
+
+        kodDavranis();
     }
 
-    // Her mod icin: baslik, aciklama, buton, gorunur alanlar
     const MODLAR = {
-        login:  { t: 'Giris Yap',        s: 'Favorileriniz tum cihazlarinizda sizinle.',
-                  b: 'Giris Yap',        f: ['g-email', 'g-pass', 'g-forgot', 'g-switch'] },
-        signup: { t: 'Kayit Ol',         s: 'Ucretsiz hesap olusturun, favorileriniz kaybolmasin.',
-                  b: 'Hesap Olustur',    f: ['g-email', 'g-pass', 'g-switch'] },
-        otp:    { t: 'Kodu Girin',       s: '',
+        login:  { t: 'Giris Yap',       s: 'Favorileriniz tum cihazlarinizda sizinle.',
+                  b: 'Giris Yap',       f: ['g-google', 'g-email', 'g-pass', 'g-forgot', 'g-switch'] },
+        signup: { t: 'Kayit Ol',        s: 'Ucretsiz hesap olusturun, favorileriniz kaybolmasin.',
+                  b: 'Hesap Olustur',   f: ['g-google', 'g-email', 'g-pass', 'g-switch'] },
+        otp:    { t: 'Kodu Girin',      s: '',
                   b: 'Dogrula ve Giris Yap', f: ['g-code', 'g-resend'] },
-        forgot: { t: 'Sifremi Unuttum',  s: 'E-posta adresinizi girin, size bir kod gonderelim.',
-                  b: 'Kod Gonder',       f: ['g-email', 'g-switch'] },
-        reset:  { t: 'Yeni Sifre',       s: '',
+        forgot: { t: 'Sifremi Unuttum', s: 'E-posta adresinizi girin, size bir kod gonderelim.',
+                  b: 'Kod Gonder',      f: ['g-email', 'g-switch'] },
+        reset:  { t: 'Yeni Sifre',      s: '',
                   b: 'Sifremi Guncelle', f: ['g-code', 'g-newpass', 'g-resend'] }
     };
 
@@ -99,16 +190,20 @@
         el('fl-title').textContent  = cfg.t;
         el('fl-submit').textContent = cfg.b;
         el('fl-sub').textContent    = cfg.s ||
-            (pendingEmail ? (pendingEmail + ' adresine gonderilen 6 haneli kodu girin.') : '');
+            (pendingEmail ? (pendingEmail + ' adresine gonderilen kodu girin.') : '');
 
-        // Once hepsini gizle, sonra moda ait olanlari goster
-        ['g-email', 'g-pass', 'g-code', 'g-newpass', 'g-forgot', 'g-switch', 'g-resend']
+        ['g-google', 'g-email', 'g-pass', 'g-code', 'g-newpass', 'g-forgot', 'g-switch', 'g-resend']
             .forEach(id => { el(id).style.display = 'none'; });
         cfg.f.forEach(id => { el(id).style.display = 'block'; });
 
         el('fl-switch-text').textContent = (m === 'signup') ? 'Zaten uye misiniz?' : 'Hesabiniz yok mu?';
         el('fl-switch').textContent      = (m === 'signup') ? 'Giris yapin' : 'Kayit olun';
 
+        if (m === 'otp' || m === 'reset')
+        {
+            kodTemizle();
+            setTimeout(kodOdakla, 60);
+        }
         msg('');
     }
 
@@ -123,12 +218,25 @@
     {
         setMode(m || 'login');
         el('fl-modal').classList.add('show');
-        setTimeout(() => el('fl-email').focus(), 50);
+        setTimeout(() => { const e = el('fl-email'); if (e.offsetParent) { e.focus(); } }, 60);
     }
 
     function close()
     {
         el('fl-modal').classList.remove('show');
+    }
+
+    async function googleGiris()
+    {
+        msg('Google\'a yonlendiriliyorsunuz...');
+        const { error } = await FlDB.auth.signInWithOAuth({
+            provider: 'google',
+            options: { redirectTo: BASE }
+        });
+        if (error)
+        {
+            msg('Google girisi baslatilamadi: ' + error.message, 'err');
+        }
     }
 
     async function resend()
@@ -142,24 +250,31 @@
             ? await FlDB.auth.resetPasswordForEmail(pendingEmail)
             : await FlDB.auth.resend({ type: 'signup', email: pendingEmail });
         msg(error ? ('Hata: ' + error.message) : 'Yeni kod gonderildi.', error ? 'err' : 'ok');
+        kodTemizle();
+        kodOdakla();
     }
 
-    // Oturum acildiktan sonra yereldeki favorileri hesaba tasi
     async function bitir()
     {
-        await new Promise(r => setTimeout(r, 300));   // oturumun oturmasi icin
+        await new Promise(r => setTimeout(r, 300));
         await FlStore.migrateLocal();
         location.reload();
     }
 
+    let calisiyor = false;
+
     async function submit()
     {
+        if (calisiyor)
+        {
+            return;
+        }
+        calisiyor = true;
         const btn = el('fl-submit');
         btn.disabled = true;
 
         try
         {
-            // ── Kayit: kod iste ──
             if (mode === 'signup')
             {
                 const email = el('fl-email').value.trim();
@@ -176,17 +291,15 @@
                 }
                 pendingEmail = email;
                 setMode('otp');
-                setTimeout(() => el('fl-code').focus(), 50);
                 return;
             }
 
-            // ── Kayit kodunu dogrula ──
             if (mode === 'otp')
             {
-                const code = el('fl-code').value.trim();
-                if (code.length < 6)
+                const code = kodOku();
+                if (code.length !== KOD_UZUNLUK)
                 {
-                    msg('Maildeki kodu eksiksiz girin.', 'err'); return;
+                    msg('Kodu eksiksiz girin.', 'err'); return;
                 }
                 msg('Dogrulaniyor...');
                 const { error } = await FlDB.auth.verifyOtp({
@@ -194,14 +307,14 @@
                 });
                 if (error)
                 {
-                    msg('Kod hatali veya suresi dolmus.', 'err'); return;
+                    msg('Kod hatali veya suresi dolmus.', 'err');
+                    kodTemizle(); kodOdakla(); return;
                 }
                 msg('Hesabiniz onaylandi, giris yapiliyor...', 'ok');
                 await bitir();
                 return;
             }
 
-            // ── Sifremi unuttum: kod iste ──
             if (mode === 'forgot')
             {
                 const email = el('fl-email').value.trim();
@@ -217,18 +330,20 @@
                 }
                 pendingEmail = email;
                 setMode('reset');
-                setTimeout(() => el('fl-code').focus(), 50);
                 return;
             }
 
-            // ── Yeni sifre belirle ──
             if (mode === 'reset')
             {
-                const code = el('fl-code').value.trim();
+                const code = kodOku();
                 const np   = el('fl-newpass').value;
-                if (code.length < 6 || np.length < 6)
+                if (code.length !== KOD_UZUNLUK)
                 {
-                    msg('Kodu girin ve sifre en az 6 karakter olsun.', 'err'); return;
+                    msg('Kodu eksiksiz girin.', 'err'); return;
+                }
+                if (np.length < 6)
+                {
+                    msg('Yeni sifre en az 6 karakter olmalidir.', 'err'); return;
                 }
                 msg('Dogrulaniyor...');
                 const v = await FlDB.auth.verifyOtp({
@@ -236,7 +351,8 @@
                 });
                 if (v.error)
                 {
-                    msg('Kod hatali veya suresi dolmus.', 'err'); return;
+                    msg('Kod hatali veya suresi dolmus.', 'err');
+                    kodTemizle(); kodOdakla(); return;
                 }
                 const u = await FlDB.auth.updateUser({ password: np });
                 if (u.error)
@@ -248,7 +364,7 @@
                 return;
             }
 
-            // ── Normal giris ──
+            // Normal giris
             const email = el('fl-email').value.trim();
             const pass  = el('fl-pass').value;
             if (!email || !pass)
@@ -266,40 +382,15 @@
         }
         finally
         {
+            calisiyor = false;
             btn.disabled = false;
         }
-    }
-
-    // Sag ust kose butonu
-    async function renderButton()
-    {
-        const b = document.createElement('button');
-        b.id = 'fl-authbtn';
-
-        if (await FlStore.isLoggedIn())
-        {
-            const u = FlStore.currentUser();
-            b.innerHTML = '<span class="fl-dot"></span>' + u.email.split('@')[0];
-            b.title = 'Cikis yapmak icin tiklayin';
-            b.onclick = async () =>
-            {
-                await FlDB.auth.signOut();
-                location.reload();
-            };
-        }
-        else
-        {
-            b.textContent = 'Giris Yap';
-            b.onclick = () => open('login');
-        }
-        document.body.appendChild(b);
     }
 
     function init()
     {
         buildModal();
         setMode('login');
-        // renderButton(); -- fl-ui.js devraldi
     }
 
     if (document.readyState === 'loading')

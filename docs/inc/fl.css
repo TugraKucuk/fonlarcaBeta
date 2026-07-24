@@ -201,3 +201,44 @@
     .fl-uname { max-width: 80px; }
     .fl-avatar { width: 22px; height: 22px; font-size: 11px; }
 }
+
+/* ── Kod kutucuklari ── */
+#fl-modal .fl-otp { display: flex; gap: 8px; margin-bottom: 14px; }
+#fl-modal .fl-otp-box
+{
+    flex: 1; width: 100%; min-width: 0;
+    text-align: center;
+    font-size: 22px; font-weight: 700;
+    color: #1F4E78; font-family: inherit;
+    padding: 12px 0; margin: 0;
+    border: 1.5px solid #d7e0ea; border-radius: 10px;
+    box-sizing: border-box;
+    transition: border-color .15s, box-shadow .15s, background .15s;
+}
+#fl-modal .fl-otp-box:focus
+{
+    outline: none; border-color: #1F4E78;
+    box-shadow: 0 0 0 3px rgba(31,78,120,.14);
+    background: #fbfdff;
+}
+
+/* ── Google butonu ── */
+#fl-modal .fl-google
+{
+    width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px;
+    padding: 11px; background: #fff; color: #3c4043;
+    border: 1.5px solid #dadce0; border-radius: 9px;
+    font-family: inherit; font-size: 14.5px; font-weight: 600;
+    cursor: pointer; transition: background .15s, box-shadow .15s;
+}
+#fl-modal .fl-google:hover { background: #f7f8fa; box-shadow: 0 1px 6px rgba(0,0,0,.10); }
+
+#fl-modal .fl-ayirac
+{
+    display: flex; align-items: center; gap: 12px;
+    margin: 16px 0 14px; color: #b6c0cc; font-size: 12px;
+}
+#fl-modal .fl-ayirac::before, #fl-modal .fl-ayirac::after
+{
+    content: ''; flex: 1; height: 1px; background: #e6ecf3;
+}
