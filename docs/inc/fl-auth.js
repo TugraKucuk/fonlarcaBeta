@@ -38,8 +38,8 @@
 
             '<div class="fl-grp" id="g-code">' +
               '<label class="fl-label" for="fl-code">Dogrulama kodu</label>' +
-              '<input type="text" id="fl-code" class="fl-code-input" placeholder="000000" ' +
-                     'inputmode="numeric" maxlength="6" autocomplete="one-time-code">' +
+              '<input type="text" id="fl-code" class="fl-code-input" placeholder="Kod" ' +
+                     'inputmode="numeric" maxlength="10" autocomplete="one-time-code">' +
             '</div>' +
 
             '<div class="fl-grp" id="g-newpass">' +
@@ -184,9 +184,9 @@
             if (mode === 'otp')
             {
                 const code = el('fl-code').value.trim();
-                if (code.length !== 6)
+                if (code.length < 6)
                 {
-                    msg('6 haneli kodu girin.', 'err'); return;
+                    msg('Maildeki kodu eksiksiz girin.', 'err'); return;
                 }
                 msg('Dogrulaniyor...');
                 const { error } = await FlDB.auth.verifyOtp({
@@ -226,7 +226,7 @@
             {
                 const code = el('fl-code').value.trim();
                 const np   = el('fl-newpass').value;
-                if (code.length !== 6 || np.length < 6)
+                if (code.length < 6 || np.length < 6)
                 {
                     msg('Kodu girin ve sifre en az 6 karakter olsun.', 'err'); return;
                 }
@@ -299,7 +299,7 @@
     {
         buildModal();
         setMode('login');
-        renderButton();
+        // renderButton(); -- fl-ui.js devraldi
     }
 
     if (document.readyState === 'loading')
