@@ -30,3 +30,46 @@
     opacity: .5;
     cursor: wait;
 }
+
+/* ── Giris/Kayit modali ── */
+#fl-modal { display: none; }
+#fl-modal.show { display: block; }
+#fl-modal .fl-backdrop
+{
+    position: fixed; inset: 0; background: rgba(15,25,40,.55); z-index: 9998;
+}
+#fl-modal .fl-box
+{
+    position: fixed; z-index: 9999;
+    top: 50%; left: 50%; transform: translate(-50%, -50%);
+    background: #fff; border-radius: 12px; padding: 28px 26px;
+    width: 92%; max-width: 360px;
+    box-shadow: 0 8px 40px rgba(0,0,0,.25);
+    font-family: -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+#fl-modal h3 { margin: 0 0 16px; color: #1F4E78; font-size: 19px; }
+#fl-modal input
+{
+    width: 100%; padding: 10px 12px; margin-bottom: 10px;
+    border: 1px solid #d7e0ea; border-radius: 7px; font-size: 14px;
+}
+#fl-modal input:focus { outline: none; border-color: #1F4E78; }
+#fl-modal .fl-submit
+{
+    width: 100%; padding: 11px; margin-top: 4px;
+    background: #1F4E78; color: #fff; border: none;
+    border-radius: 7px; font-size: 15px; font-weight: 600; cursor: pointer;
+}
+#fl-modal .fl-submit:hover { background: #14345a; }
+#fl-modal .fl-submit:disabled { opacity: .6; cursor: wait; }
+#fl-modal .fl-close
+{
+    position: absolute; top: 10px; right: 14px;
+    background: none; border: none; font-size: 24px;
+    color: #93a0b0; cursor: pointer; line-height: 1;
+}
+#fl-modal .fl-switch { font-size: 13px; color: #5f6b7a; text-align: center; margin: 14px 0 0; }
+#fl-modal .fl-switch a { color: #1F4E78; font-weight: 600; }
+#fl-modal .fl-msg { font-size: 13px; margin-bottom: 10px; min-height: 18px; }
+#fl-modal .fl-msg.err { color: #b3261e; }
+#fl-modal .fl-msg.ok  { color: #1a7a37; }
