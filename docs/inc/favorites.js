@@ -62,6 +62,13 @@
         e.preventDefault();
         e.stopPropagation();
 
+        // Giris yoksa favorileme yerine giris modalini ac
+        if (!(await FlStore.isLoggedIn()))
+        {
+            if (window.FlAuth) { FlAuth.open("login"); }
+            return;
+        }
+
         const code = btn.dataset.code;
         const tr   = btn.closest('tr');
 
