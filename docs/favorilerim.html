@@ -53,6 +53,9 @@ table.fav td { padding: 9px 10px; border-bottom: 1px solid #f4f6f9; }
 table.fav tr:hover td { background: #fafcfe; }
 table.fav a { color: #1F4E78; font-weight: 600; text-decoration: none; }
 table.fav a:hover { text-decoration: underline; }
+.pos { color: #1a7a37; font-weight: 600; }
+.neg { color: #c0392b; font-weight: 600; }
+.skor { font-weight: 700; color: #1F4E78; }
 .kod { font-weight: 700; }
 .sil { background: none; border: none; cursor: pointer; color: #f5a623;
        font-size: 17px; padding: 2px 6px; }
@@ -134,7 +137,13 @@ async function katalogYukle()
             const kod = (h[0].textContent || '').trim().toUpperCase();
             if (kod)
             {
-                katalog[kod] = { ad: h[1].textContent.trim(), kat: h[2].textContent.trim() };
+                katalog[kod] = {
+                    ad:   h[1].textContent.trim(),
+                    kat:  h[2].textContent.trim(),
+                    skor: h[4] ? h[4].textContent.trim() : "—",
+                    mom:  h[5] ? h[5].textContent.trim() : "—",
+                    get:  h[6] ? h[6].textContent.trim() : "—"
+                };
             }
         });
     }
@@ -142,6 +151,14 @@ async function katalogYukle()
     {
         console.warn('Kategori bilgisi alinamadi', e);
     }
+}
+
+
+function getiriRenk(v)
+{
+    const n = parseFloat(String(v).replace(",", "."));
+    if (isNaN(n)) { return ""; }
+    return n >= 0 ? "pos" : "neg";
 }
 
 function html(s)
@@ -198,7 +215,7 @@ function ciz()
                '<div class="kat-baslik"><span class="ok">&#9660;</span>' + html(k) +
                  '<span class="kat-adet">' + gruplar[k].length + '</span></div>' +
                '<table class="fav"><thead><tr>' +
-                 '<th style="width:70px">Kod</th><th>Fon Adi</th><th style="width:44px"></th>' +
+                 '<th style="width:70px">Kod</th><th>Fon Adi</th><th style="width:60px">Skor</th><th style="width:70px">Getiri</th><th style="width:80px">Momentum</th><th style="width:44px"></th>' +
                '</tr></thead><tbody>';
 
         gruplar[k].forEach(f =>
@@ -206,6 +223,9 @@ function ciz()
             h += '<tr>' +
                    '<td class="kod"><a href="https://fonlarca.com/fon/' + f.code.toLowerCase() + '.html" target="_blank">' + html(f.code) + '</a></td>' +
                    '<td>' + html(f.name) + '</td>' +
+                   '<td class="skor">' + html(f.skor) + '</td>' +
+                   '<td class="' + getiriRenk(f.get) + '">' + html(f.get) + '</td>' +
+                   '<td>' + html(f.mom) + '</td>' +
                    '<td><button class="sil" data-code="' + html(f.code) + '" title="Favorilerden kaldir">&#9733;</button></td>' +
                  '</tr>';
         });
@@ -279,7 +299,10 @@ document.getElementById('geri-btn').onclick = async () =>
         return {
             code: f.code,
             name: f.name || bilgi.ad || f.code,
-            kat:  bilgi.kat || 'Diger'
+            kat:  bilgi.kat || 'Diger',
+            skor: bilgi.skor || '—',
+            mom:  bilgi.mom  || '—',
+            get:  bilgi.get  || '—'
         };
     }).sort((a, b) => a.code.localeCompare(b.code, 'tr'));
 
